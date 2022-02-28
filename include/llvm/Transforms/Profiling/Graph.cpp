@@ -323,9 +323,18 @@ namespace graph{
                         //QUES.: In loop, it will skip the phi node, but we dont want to carry the 
                         //Find the def inst of Dim3_Inst's 2nd arg
                         Value * search_v = Dim3_Inst->getArgOperand(1);
+                        if(isa<ConstantInt>(search_v))
+                        {
+                            errs()<<"First!\n";
+                            addBB(direct_pred_bb);
+                            one_bb_split_flag = true;
+                            continue;
+                        }
                         Instruction * v_def_inst = dyn_cast<Instruction>(search_v);
+                        errs()<<""<<*v_def_inst<<"\n";
                         if(v_def_inst == dyn_cast<Instruction>(direct_pred_bb->getFirstInsertionPt()))
                         {
+                            errs()<<"First!\n";
                             addBB(direct_pred_bb);
                             one_bb_split_flag = true;
                             continue;
@@ -1874,9 +1883,12 @@ namespace graph{
             BasicBlock * last_bb_Prev = Prev_BBs.back();
             Instruction * last_inst_Prev = last_bb_Prev->getTerminator();
 
-            //Get stream of Prev Node
+            //Get stream of Prev and Succ Node
             size_t prev_stream_index = get_node_stream(Prev);
             GlobalVariable * prev_stream_var = stream_var_ptrs[prev_stream_index];
+            size_t succ_stream_index = get_node_stream(Succ);
+            GlobalVariable * succ_stream_var = stream_var_ptrs[succ_stream_index];
+
             std::vector<Value*> args;
 
             //Insert cudaEventRecord() before last_inst_Prev
@@ -1911,9 +1923,9 @@ namespace graph{
 
             while(!args.empty()) args.pop_back();
 
-            //Insert cudaStreamWaitEvent() before first_inst_Succ
+            //Insert cudaStreamWaitEvent() before first_inst_Succ          NOTE: The stream here should be the one of succ
             builder.SetInsertPoint(first_inst_Succ);
-            ret_v = builder.CreateLoad(prev_stream_var);
+            ret_v = builder.CreateLoad(succ_stream_var);
             if(ret_v == nullptr)
             {
                 errs()<<"Cannot load stream value\n";

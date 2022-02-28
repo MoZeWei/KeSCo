@@ -139,9 +139,38 @@ namespace{
             Function * cur_func = dyn_cast<Function>(func);
             if(cur_func->getName().str() == "main")
             {
-                BasicBlock * first_bb = dyn_cast<BasicBlock>(cur_func->begin());
-                Instruction * first_inst = dyn_cast<Instruction>(first_bb->getFirstInsertionPt());
-                IRBuilder<> builder(first_inst);
+                // BasicBlock * first_bb = dyn_cast<BasicBlock>(cur_func->begin());
+                // Instruction * first_inst = dyn_cast<Instruction>(first_bb->getFirstInsertionPt());
+
+                //TO.DO.: Put the stream init after cudaSetDevice()
+                bool flag = false;
+                Instruction * insert_point_inst = nullptr;
+                for(auto bb = cur_func->begin(), bb_end = cur_func->end(); bb != bb_end; bb++)
+                {
+                    if(flag) break;
+                    for(auto inst = bb->begin(), inst_end = bb->end(); inst != inst_end; inst++)
+                    {
+                        if(isa<CallInst>(inst))
+                        {
+                            CallInst * call_inst = dyn_cast<CallInst>(inst);
+                            Function * called_func = call_inst->getCalledFunction();
+                            if(called_func != nullptr && called_func->getName().str() == "cudaSetDevice")
+                            {
+                                flag = true;
+                                insert_point_inst = call_inst->getNextNode();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if(insert_point_inst == nullptr)
+                {
+                    errs()<<"Cannot find cudaSetDevice\n";
+                    BasicBlock * first_bb = dyn_cast<BasicBlock>(cur_func->begin());
+                    insert_point_inst = dyn_cast<Instruction>(first_bb->getFirstInsertionPt());
+                }
+                IRBuilder<> builder(insert_point_inst);
                 for(int i = 0; i < stream_num; i++)
                 {
                     Value * cur_stream_ptr = dyn_cast<Value>(stream_var_ptrs[i]);
@@ -517,10 +546,18 @@ namespace{
                 LoadInst * ld_inst = nullptr;
                 if(isa<LoadInst>(cur_argv))
                     ld_inst = dyn_cast<LoadInst>(cur_argv);
+                else if(isa<AllocaInst>(cur_argv))
+                {
+                    //it may be passed value by llvm.memcpy
+                    //For now, just ignore
+                    res.push_back(cur_argv);
+                    continue;
+                }
                 else
                 {
                     if(BitCastInst * bc_inst = dyn_cast<BitCastInst>(cur_argv))
                     {
+                        //errs()<<"found bc_inst for "<<cur_argv<<"\n";
                         Value * tmp_v = bc_inst->getOperand(0);
                         ld_inst = dyn_cast<LoadInst>(tmp_v);
                     }
