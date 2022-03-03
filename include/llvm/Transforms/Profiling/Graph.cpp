@@ -108,13 +108,13 @@ namespace graph{
 
     Node * Node::get_pred(size_t i)
     {
-        if(i > pred.size()) return nullptr;
+        if(i >= pred.size()) return nullptr;
         else return pred[i];
     }
 
     Node * Node::get_succ(size_t i)
     {
-        if(i > succ.size()) return nullptr;
+        if(i >= succ.size()) return nullptr;
         else return succ[i];
     }
 
@@ -1576,6 +1576,7 @@ namespace graph{
     {
         for(auto it = stream_nodes_map.begin(), it_end = stream_nodes_map.end(); it != it_end; it++)
         {
+            if(it->second.empty()) continue;
             if(it->second.back() == cur) return true;
         }
         return false;

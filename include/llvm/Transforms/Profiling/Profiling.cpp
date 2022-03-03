@@ -104,7 +104,7 @@ namespace{
         auto cuStream_t_PtrPtrT = PointerType::get(cuStream_t_PtrT,0);
         ConstantPointerNull * NULLPTR = ConstantPointerNull::get(cuStream_t_PtrT);
 
-        size_t stream_num = 2;
+        size_t stream_num = 10;
         GlobalVariable * stream_var_ptrs[stream_num];
         for(int i = 0; i < stream_num; i++)
         {
