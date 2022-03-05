@@ -104,7 +104,7 @@ namespace{
         auto cuStream_t_PtrPtrT = PointerType::get(cuStream_t_PtrT,0);
         ConstantPointerNull * NULLPTR = ConstantPointerNull::get(cuStream_t_PtrT);
 
-        size_t stream_num = 10;
+        size_t stream_num = 8;
         GlobalVariable * stream_var_ptrs[stream_num];
         for(int i = 0; i < stream_num; i++)
         {
@@ -143,6 +143,11 @@ namespace{
                 // Instruction * first_inst = dyn_cast<Instruction>(first_bb->getFirstInsertionPt());
 
                 //TO.DO.: Put the stream init after cudaSetDevice()
+                //NOTE: There two ways: 
+                //First: Invoke with conditional jmp  
+                //          Normally, we will jmp to the basicblock of invoke_inst->getNormalDest()
+                //Second: Directly Call
+                //          Normally, just go to the next node of it
                 bool flag = false;
                 Instruction * insert_point_inst = nullptr;
                 for(auto bb = cur_func->begin(), bb_end = cur_func->end(); bb != bb_end; bb++)
@@ -159,6 +164,17 @@ namespace{
                                 flag = true;
                                 insert_point_inst = call_inst->getNextNode();
                                 break;
+                            }
+                        }
+                        if(isa<InvokeInst>(inst))
+                        {
+                            InvokeInst * invoke_inst = dyn_cast<InvokeInst>(inst);
+                            Function * invoked_func = invoke_inst->getCalledFunction();
+                            if(invoked_func != nullptr && invoked_func->getName().str() == "cudaSetDevice")
+                            {
+                                flag = true;
+                                BasicBlock * normal_succ_bb = invoke_inst->getNormalDest();
+                                insert_point_inst = dyn_cast<Instruction>(normal_succ_bb->getFirstInsertionPt());
                             }
                         }
                     }
@@ -377,6 +393,8 @@ namespace{
                         }
                         else if(called_func_name.find("cpu_") != std::string::npos)
                         {
+                            errs()<<"CPU FUNCTION NOT SUPPORTED\n";
+                            exit(1);
                             //This is a cpu function
                             Function * cpu_func = dyn_cast<Function>(call_inst->getFunction());
                             //TO.DO.: Hard to grep the true original input value

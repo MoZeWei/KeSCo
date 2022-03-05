@@ -830,7 +830,18 @@ namespace graph{
             {
                 new_node->add_input_value(cur_v);
                 
-                Node * pred_node = reverse_find_pred(cur_v,true,true)[0];
+                // Node * pred_node = reverse_find_pred(cur_v,true,true)[0];
+                //NOTE: To find RAW, we might find two pred, where Entry_Node lies. Select another one if the first one is Entry_Node
+                std::vector<Node*> RAW_pred_nodes = reverse_find_pred(cur_v, true, true);
+                Node * pred_node = RAW_pred_nodes[0];
+                for(Node * RAW_pred_node : RAW_pred_nodes)
+                {
+                    if(RAW_pred_node != Entry_Node)
+                    {
+                        pred_node = RAW_pred_node;
+                        break;
+                    }
+                }
                 
                 /*
                 if(pred_node == Entry_Node) errs()<<"raw_Pre_Node is Entry Node\n";
@@ -868,6 +879,18 @@ namespace graph{
             else
                 continue;
         }
+
+        //DEBUG: In benchmarkb8, _Z29__device_stub__minimum_kerneliPfS_i cannot find its correct pred, test for it          DONE!
+        // if(new_node->get_func_name() == "_Z29__device_stub__minimum_kerneliPfS_i")
+        // {
+        //     errs()<<"RAW preds found for _Z29__device_stub__minimum_kerneliPfS_i\n";
+        //     for(auto pred_node : pred_nodes)
+        //     {
+        //         if(pred_node == Entry_Node) errs()<<"Entry Node\n";
+        //         pred_node->dump_inst();
+        //     }
+        //     exit(1);
+        // }
 
         //WAW & WAR
         for(size_t i = 0; i < output_v.size(); i++)
@@ -1243,6 +1266,8 @@ namespace graph{
         
         size_t stream_num = StreamG->get_stream_num();
         
+        srand(NULL);                                                    //To more randomly select a balanced stream
+
         for(size_t i = 1; i <= n_level; i++)
         {
             std::vector<Node*> nodes = level_nodes_map[i];
@@ -1360,7 +1385,8 @@ namespace graph{
             for(auto node : later_set_nodes)
             {
                 //random pick one
-                size_t stream_id = node_original_index_map[node] % stream_num;
+                // size_t stream_id = node_original_index_map[node] % stream_num;
+                size_t stream_id = rand() % stream_num;                                   
                 StreamG->node_set_stream(node,stream_id,stream_var_ptrs,M);
                 StreamG->init_node_undone_succ(node);
                 size_t pred_num = node->get_pred_num();
