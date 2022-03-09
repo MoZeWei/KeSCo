@@ -108,6 +108,13 @@ namespace graph{
             void SetStream(GlobalVariable *, Module &);
     };
 
+    class PrefetchNode : public FuncNode{
+        public:
+            PrefetchNode(CallInst *, Function *, bool, bool);
+            void CollectBBs(Module &);
+            void SetStream(GlobalVariable *, Module &);
+    };
+
     class SuperNode{
         private:
             Node * node_list;                   //Contains one function node and its pre inst node

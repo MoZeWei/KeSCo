@@ -44,19 +44,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /data/public/wuk/env/v1/spack/opt/spack/linux-centos7-zen/gcc-8.5.0/cmake-3.21.4-nvydniyy3o7epsmkovhbb2r2gabeijca/bin/cmake
+CMAKE_COMMAND = /home/mozw/spack/opt/spack/linux-ubuntu18.04-skylake_avx512/gcc-7.5.0/cmake-3.21.4-4kci5dkaqkttedfecvppqzzzys2b4o73/bin/cmake
 
 # The command to remove a file.
-RM = /data/public/wuk/env/v1/spack/opt/spack/linux-centos7-zen/gcc-8.5.0/cmake-3.21.4-nvydniyy3o7epsmkovhbb2r2gabeijca/bin/cmake -E rm -f
+RM = /home/mozw/spack/opt/spack/linux-ubuntu18.04-skylake_avx512/gcc-7.5.0/cmake-3.21.4-4kci5dkaqkttedfecvppqzzzys2b4o73/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /data/home/mzw/llvm-13.0.0/include/llvm/Transforms
+CMAKE_SOURCE_DIR = /home/mozw/llvm-13.0.0/include/llvm/Transforms
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /data/home/mzw/llvm-13.0.0/include/llvm/Transforms/build
+CMAKE_BINARY_DIR = /home/mozw/llvm-13.0.0/include/llvm/Transforms/build
 
 # Utility rule file for omp_gen.
 
@@ -78,6 +78,6 @@ CMakeFiles/omp_gen.dir/clean:
 .PHONY : CMakeFiles/omp_gen.dir/clean
 
 CMakeFiles/omp_gen.dir/depend:
-	cd /data/home/mzw/llvm-13.0.0/include/llvm/Transforms/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /data/home/mzw/llvm-13.0.0/include/llvm/Transforms /data/home/mzw/llvm-13.0.0/include/llvm/Transforms /data/home/mzw/llvm-13.0.0/include/llvm/Transforms/build /data/home/mzw/llvm-13.0.0/include/llvm/Transforms/build /data/home/mzw/llvm-13.0.0/include/llvm/Transforms/build/CMakeFiles/omp_gen.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mozw/llvm-13.0.0/include/llvm/Transforms/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mozw/llvm-13.0.0/include/llvm/Transforms /home/mozw/llvm-13.0.0/include/llvm/Transforms /home/mozw/llvm-13.0.0/include/llvm/Transforms/build /home/mozw/llvm-13.0.0/include/llvm/Transforms/build /home/mozw/llvm-13.0.0/include/llvm/Transforms/build/CMakeFiles/omp_gen.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/omp_gen.dir/depend
 

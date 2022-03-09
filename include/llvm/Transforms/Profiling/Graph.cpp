@@ -645,6 +645,140 @@ namespace graph{
         setCalledFunc(MemcpyAsyncFunc);
     }
 
+    PrefetchNode::PrefetchNode(CallInst * ci, Function * cf, bool gpu_f = false, bool graph_f = false):FuncNode(ci,cf,gpu_f,graph_f)
+    {
+        Value * input_arg = nullptr;
+        Value * output_arg = ci->getOperand(0);
+
+        if(BitCastInst * output_bitcast_inst = dyn_cast<BitCastInst>(output_arg))
+        {
+            Value * mid_v = output_bitcast_inst->getOperand(0);
+            if(LoadInst * ld_inst = dyn_cast<LoadInst>(mid_v))
+            {
+                Value * container_v = ld_inst->getOperand(0);
+                bool flag = false;
+                for(auto user = container_v->user_begin(), user_end = container_v->user_end(); 
+                    user != user_end; user++)
+                {
+                    if(StoreInst * st_inst = dyn_cast<StoreInst>(*user))
+                    {
+                        flag = true;
+                        Value * original_v = st_inst->getOperand(0);
+                        add_output_value(original_v);
+                        break;
+                    }
+                }
+                if(!flag)
+                {
+                    errs()<<"Cannot find the original output arg of ";
+                    errs()<<*ci<<"\n";
+                    exit(1);
+                }
+            }
+            else
+            {
+                errs()<<"No Load Inst for output_arg in PrefetchInst ";
+                errs()<<*ci<<"\n";
+                exit(1);
+            }
+        }
+        else
+        {
+            if(LoadInst * ld_inst = dyn_cast<LoadInst>(output_arg))
+            {
+                Value * container_v = ld_inst->getOperand(0);
+                bool flag = false;
+                for(auto user = container_v->user_begin(), user_end = container_v->user_end();
+                    user != user_end; user++)
+                {
+                    if(StoreInst * st_inst = dyn_cast<StoreInst>(*user))
+                    {
+                        Value * original_v = st_inst->getOperand(0);
+                        add_output_value(original_v);
+                        flag = true;
+                        break;
+                    }
+                }
+                if(!flag)
+                {
+                    errs()<<"Cannot find the original output arg of ";
+                    errs()<<*ci<<"\n";
+                    exit(1);
+                }
+            }
+        }
+    }
+
+    void PrefetchNode::CollectBBs(Module & M)
+    {
+        CallInst * prefetch_inst = this->getCallInst();
+        
+        Instruction * head_inst = nullptr;
+        Value * first_operand = prefetch_inst->getOperand(0);
+        if(LoadInst * ld_inst = dyn_cast<LoadInst>(first_operand))
+        {
+            head_inst = ld_inst;
+        }
+        else
+        {
+            BitCastInst * cast_inst = dyn_cast<BitCastInst>(first_operand);
+            if(cast_inst == nullptr)
+            {
+                errs()<<"Cannot get bitcast inst of ";
+                errs()<<*prefetch_inst<<"\n";
+                exit(1);
+            }
+            Value * ld_v = cast_inst->getOperand(0);
+            if(LoadInst * ld_inst = dyn_cast<LoadInst>(ld_v))
+            {
+                head_inst = ld_inst;
+            }
+            else
+            {
+                errs()<<"Wrong ld_inst for ";
+                errs()<<*prefetch_inst<<"\n";
+                exit(1);
+            }
+        }
+        errs()<<"Head inst of "<<*prefetch_inst<<" is "<<*head_inst<<"\n";
+        BasicBlock * old_bb = prefetch_inst->getParent();
+        BasicBlock * cur_bb = nullptr;
+        if(head_inst== dyn_cast<Instruction>(old_bb->getFirstInsertionPt()))
+            cur_bb = old_bb;
+        else
+            cur_bb = SplitBlock(old_bb,head_inst);
+        
+        Instruction * partitioned_node = prefetch_inst->getNextNode();
+        SplitBlock(cur_bb,partitioned_node);
+        this->addBB(cur_bb);
+    }
+
+    void PrefetchNode::SetStream(GlobalVariable * stream, Module & M)
+    {
+        Instruction * call_inst = this->getCallInst();
+        //insert the load inst of stream
+        IRBuilder<> builder(call_inst);
+        Value * stream_v = dyn_cast<Value>(stream);
+        //errs()<<"Stream: "<<*stream_v<<"\n";
+        Value * cur_stream = builder.CreateLoad(stream_v,"");
+        if(cur_stream == nullptr)
+        {
+            errs()<<"Cannot create stream load inst\n";
+            exit(1);
+        }
+        //no need to bitcast cur_stream to i8* for prefetch
+        // PointerType * int8PtrType = PointerType::getUnqual(Type::getInt8Ty(M.getContext()));
+        // if(int8PtrType == nullptr)
+        // {
+        //     errs()<<"cannot get the int8 ptr type\n";
+        //     exit(1);
+        // }
+        // Value * Int8_Stream_v = builder.CreateBitCast(cur_stream,int8PtrType,"");
+        
+        //replace the stream arg in pushCallConfig_Inst
+        call_inst->setOperand(3,cur_stream);
+    }
+
     Seq_Graph::Seq_Graph():Node()
     {
         Entry_Node = new Node();
@@ -805,6 +939,10 @@ namespace graph{
         else if(dynamic_cast<MemcpyNode*>(node))
         {
             new_node = new MemcpyNode(call_inst,called_func,true,true);
+        }
+        else if(dynamic_cast<PrefetchNode*>(node))
+        {
+            new_node = new PrefetchNode(call_inst,called_func,true,true);
         }
         else
         {

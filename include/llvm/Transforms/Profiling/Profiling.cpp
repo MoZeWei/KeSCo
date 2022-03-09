@@ -416,6 +416,13 @@ namespace{
                             Node * prev_node = SG->get_last_Node();
                             SG->Insert(node,prev_node);
                         }
+                        else if(called_func_name == "cudaMemPrefetchAsync")
+                        {
+                            Function * prefetch_func = dyn_cast<Function>(call_inst->getCalledFunction());
+                            PrefetchNode * node = new PrefetchNode(call_inst, prefetch_func, false, false);
+                            Node * prev_node = SG->get_last_Node();
+                            SG->Insert(node,prev_node);
+                        }
                         else
                         {
                             //These are considered to be cpu function(how about hipblasGemmEx etc.?)

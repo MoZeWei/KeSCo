@@ -6,8 +6,8 @@ cmake_minimum_required(VERSION 3.1)
  SET(CMAKE_CXX_FLAGS "-Wall -frtti")
  find_package(LLVM REQUIRED CONFIG)
  add_definitions(${LLVM_DEFINITIONS})
- include_directories(/data/home/mzw/llvm-13.0.0/include)
- link_directories(/data/home/mzw/llvm-13.0.0)
+ include_directories(/home/mozw/llvm-13.0.0/include)
+ link_directories(/data/mozw/llvm-13.0.0)
  
  #add_subdirectory(skeleton)  # Use your pass name here.
  add_subdirectory(Profiling)
