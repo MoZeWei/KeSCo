@@ -104,7 +104,7 @@ namespace{
         auto cuStream_t_PtrPtrT = PointerType::get(cuStream_t_PtrT,0);
         ConstantPointerNull * NULLPTR = ConstantPointerNull::get(cuStream_t_PtrT);
 
-        size_t stream_num = 8;
+        size_t stream_num = 10;
         GlobalVariable * stream_var_ptrs[stream_num];
         for(int i = 0; i < stream_num; i++)
         {
@@ -413,6 +413,13 @@ namespace{
                             //node->dumpBBs();
                             //errs()<<"***************\n";
                             
+                            Node * prev_node = SG->get_last_Node();
+                            SG->Insert(node,prev_node);
+                        }
+                        else if(called_func_name == "cudaMemPrefetchAsync")
+                        {
+                            Function * prefetch_func = dyn_cast<Function>(call_inst->getCalledFunction());
+                            PrefetchNode * node = new PrefetchNode(call_inst, prefetch_func, false, false);
                             Node * prev_node = SG->get_last_Node();
                             SG->Insert(node,prev_node);
                         }

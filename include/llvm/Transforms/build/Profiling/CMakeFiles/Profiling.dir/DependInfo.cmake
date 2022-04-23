@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/data/home/mzw/llvm-13.0.0/include/llvm/Transforms/Profiling/Graph.cpp" "Profiling/CMakeFiles/Profiling.dir/Graph.cpp.o" "gcc" "Profiling/CMakeFiles/Profiling.dir/Graph.cpp.o.d"
-  "/data/home/mzw/llvm-13.0.0/include/llvm/Transforms/Profiling/Profiling.cpp" "Profiling/CMakeFiles/Profiling.dir/Profiling.cpp.o" "gcc" "Profiling/CMakeFiles/Profiling.dir/Profiling.cpp.o.d"
+  "/home/mozw/llvm-13.0.0/include/llvm/Transforms/Profiling/Graph.cpp" "Profiling/CMakeFiles/Profiling.dir/Graph.cpp.o" "gcc" "Profiling/CMakeFiles/Profiling.dir/Graph.cpp.o.d"
+  "/home/mozw/llvm-13.0.0/include/llvm/Transforms/Profiling/Profiling.cpp" "Profiling/CMakeFiles/Profiling.dir/Profiling.cpp.o" "gcc" "Profiling/CMakeFiles/Profiling.dir/Profiling.cpp.o.d"
   )
 
 # Targets to which this target links.

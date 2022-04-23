@@ -1,4 +1,4 @@
-# Install script for directory: /data/home/mzw/llvm-13.0.0/include/llvm/Transforms
+# Install script for directory: /home/mozw/llvm-13.0.0/include/llvm/Transforms
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -29,7 +29,7 @@ endif()
 
 # Install shared libraries without execute permission?
 if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
-  set(CMAKE_INSTALL_SO_NO_EXE "0")
+  set(CMAKE_INSTALL_SO_NO_EXE "1")
 endif()
 
 # Is this installation the result of a crosscompile?
@@ -39,12 +39,12 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/data/public/wuk/env/v1/spack/opt/spack/linux-centos7-zen/gcc-8.5.0/llvm-13.0.0-xbscawasf5osltzsgjjjvglsqblznv44/bin/llvm-objdump")
+  set(CMAKE_OBJDUMP "/home/mozw/spack/opt/spack/linux-ubuntu18.04-skylake_avx512/gcc-7.5.0/binutils-2.37-5k6uiobmme64drg67he5g2mrvcroxnwu/bin/objdump")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/data/home/mzw/llvm-13.0.0/include/llvm/Transforms/build/Profiling/cmake_install.cmake")
+  include("/home/mozw/llvm-13.0.0/include/llvm/Transforms/build/Profiling/cmake_install.cmake")
 
 endif()
 
@@ -56,5 +56,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/data/home/mzw/llvm-13.0.0/include/llvm/Transforms/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/mozw/llvm-13.0.0/include/llvm/Transforms/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
